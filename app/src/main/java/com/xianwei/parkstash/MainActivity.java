@@ -15,16 +15,24 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
 import java.net.URL;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener{
+        implements NavigationView.OnNavigationItemSelectedListener,
+        OnMapReadyCallback{
 
-    @BindView(R.id.text_main)
-    TextView textDisplay;
+//    @BindView(R.id.text_main)
+//    TextView textDisplay;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,7 +50,11 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        getLocationInfo();
+//        getLocationInfo();
+
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
     }
 
     private void getLocationInfo() {
@@ -110,6 +122,15 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        LatLng sydney = new LatLng(37.3676464, -121.9074857);
+        googleMap.addMarker(new MarkerOptions().position(sydney)
+                .title("Marker in Sydney"));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        googleMap.animateCamera(CameraUpdateFactory.zoomTo(12.0f));
+    }
+
     private class LocationLoader extends AsyncTask<String, Void, String> {
 
         @Override
@@ -120,7 +141,7 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         protected void onPostExecute(String s) {
-            textDisplay.setText(s);
+//            textDisplay.setText(s);
         }
     }
 }
