@@ -4,6 +4,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.util.Pair;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -23,16 +24,14 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.net.URL;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener,
-        OnMapReadyCallback{
+        implements NavigationView.OnNavigationItemSelectedListener {
 
-//    @BindView(R.id.text_main)
-//    TextView textDisplay;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,11 +49,8 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-//        getLocationInfo();
+        getLocationInfo();
 
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
     }
 
     private void getLocationInfo() {
@@ -69,28 +65,6 @@ public class MainActivity extends AppCompatActivity
         } else {
             super.onBackPressed();
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -122,26 +96,35 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-        LatLng sydney = new LatLng(37.3676464, -121.9074857);
-        googleMap.addMarker(new MarkerOptions().position(sydney)
-                .title("Marker in Sydney"));
-        googleMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
-        googleMap.animateCamera(CameraUpdateFactory.zoomTo(12.0f));
-    }
-
-    private class LocationLoader extends AsyncTask<String, Void, String> {
+    private class LocationLoader extends AsyncTask<String, Void, List<Pair<String, String>>>
+    implements OnMapReadyCallback {
+        private List<Pair<String, String>> locationList;
 
         @Override
-        protected String doInBackground(String... strings) {
-            String jsonString = QueryUtil.getJsonString("http://192.168.0.20:3000/notes");
+        protected List<Pair<String, String>> doInBackground(String... strings) {
+            String jsonString = QueryUtil.getJsonString("http://192.168.0.20:3000/locations");
             return QueryUtil.ParseJson(jsonString);
         }
 
         @Override
-        protected void onPostExecute(String s) {
-//            textDisplay.setText(s);
+        protected void onPostExecute(List<Pair<String, String>> result) {
+            SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                    .findFragmentById(R.id.map);
+            mapFragment.getMapAsync(this);
+            locationList = result;
+        }
+
+        @Override
+        public void onMapReady(GoogleMap googleMap) {
+            if (locationList == null) return;
+            for (int i = 0; i < locationList.size(); i++) {
+                double latitude = Double.parseDouble(locationList.get(i).first);
+                double longitude = Double.parseDouble(locationList.get(i).second);
+                LatLng newLocation = new LatLng(latitude, longitude);
+                googleMap.addMarker(new MarkerOptions().position(newLocation).title("parkLocation"));
+                googleMap.moveCamera(CameraUpdateFactory.newLatLng(newLocation));
+            }
+            googleMap.animateCamera(CameraUpdateFactory.zoomTo(12.0f));
         }
     }
 }

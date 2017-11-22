@@ -1,9 +1,18 @@
 var express = require('express')
- 
 var app = express()
- 
-app.get('/notes', function(req, res) {
-  res.json({notes: "This is your notebook. Edit this to start saving your notes!"})
+var MongoClient = require('mongodb').MongoClient;
+var url = "mongodb://localhost:27017/parkdb";
+
+app.get('/locations', function(req, res) {
+    MongoClient.connect(url, function(err, db) {
+      if (err) throw err;
+      var query = {};
+      db.collection("locations").find(query).toArray(function(err, result) {
+        if (err) throw err;
+        res.json(result)
+        db.close();
+      });
+    });
 })
- 
+
 app.listen(3000)
