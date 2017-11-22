@@ -27,7 +27,7 @@ public class QueryUtil {
         Request request = new Request.Builder()
                 .url(url)
                 .build();
-        Response responses = null;
+        Response responses;
         String jsonData = null;
         try {
             responses = client.newCall(request).execute();

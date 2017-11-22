@@ -2,19 +2,14 @@ package com.xianwei.parkstash;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
-import android.util.Pair;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
+import android.util.Pair;
 import android.view.MenuItem;
-import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -23,14 +18,14 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.net.URL;
 import java.util.List;
 
-import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private static final String LOCAL_URL = "http://192.168.0.20:3000/locations";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,12 +92,12 @@ public class MainActivity extends AppCompatActivity
     }
 
     private class LocationLoader extends AsyncTask<String, Void, List<Pair<String, String>>>
-    implements OnMapReadyCallback {
+            implements OnMapReadyCallback {
         private List<Pair<String, String>> locationList;
 
         @Override
         protected List<Pair<String, String>> doInBackground(String... strings) {
-            String jsonString = QueryUtil.getJsonString("http://192.168.0.20:3000/locations");
+            String jsonString = QueryUtil.getJsonString(LOCAL_URL);
             return QueryUtil.ParseJson(jsonString);
         }
 
